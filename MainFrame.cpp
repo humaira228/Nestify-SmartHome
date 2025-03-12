@@ -1,17 +1,19 @@
 ﻿#include "MainFrame.h"
 #include <wx/log.h>
+#include<iomanip>
 #include <wx/msgdlg.h>
 #include <fstream>
 #include <sstream>
 #include <wx/datetime.h>
-#include <wx/numdlg.h>  // Add this for number entry dialog
+#include <wx/numdlg.h> 
+ 
 
 MainFrame::MainFrame(const wxString& title)
     : wxFrame(nullptr, wxID_ANY, title, wxDefaultPosition, wxSize(800, 600)),
     designer(nullptr), fireAlarmTimer(nullptr), selectedRoomIndex(wxNOT_FOUND),
     onHour(18), offHour(6) {
 
-    // Initialize designer panel
+   
     designer = new Designer(this);
     if (!designer || !designer->getPanel()) {
         wxMessageBox("Designer panel initialization failed!", "Error", wxOK | wxICON_ERROR);
@@ -19,14 +21,16 @@ MainFrame::MainFrame(const wxString& title)
     }
 
 
-    // Initialize device power map
+
     devicePowerMap = {
         {"Light", 0.1},
         {"Smart Light", 0.15},
         {"Thermostat", 0.5},
         {"AC", 1.5},
         {"Fan", 0.3},
-        {"Heater", 2.0}
+        {"Heater", 2.0},
+        { "Television", 3.0 },
+        {"Refrigerator", 2.5}
     };
 
     // Initialize fire alarm timer
@@ -63,7 +67,7 @@ MainFrame::MainFrame(const wxString& title)
 
     // Rate controls layout
     wxBoxSizer* rateSizer = new wxBoxSizer(wxHORIZONTAL);
-    rateSizer->Add(new wxStaticText(this, wxID_ANY, "Electricity Rate ($/kWh):"), 0, wxALL, 5);
+    rateSizer->Add(new wxStaticText(this, wxID_ANY, "Electricity Rate (BDT/kWh):"), 0, wxALL, 5);
     rateSizer->Add(rateInput, 0, wxALL, 5);
     rateSizer->Add(applyRateBtn, 0, wxALL, 5);
 
@@ -72,7 +76,7 @@ MainFrame::MainFrame(const wxString& title)
 
     // Login panel setup (simplified)
     loginPanel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(400, 250));
-    loginPanel->SetBackgroundColour(wxColour(160, 220, 255));
+    loginPanel->SetBackgroundColour(wxColour(0, 150, 60));
     loginPanel->SetWindowStyle(wxBORDER_SIMPLE);
 
     wxBoxSizer* loginSizer = new wxBoxSizer(wxVERTICAL);
@@ -200,37 +204,87 @@ void MainFrame::OnRegister(wxCommandEvent& event) {
     }
 }
 
+// Add these implementations in MainFrame.cpp
+std::string MainFrame::GenerateSalt(size_t length) const {
+    const std::string validChars =
+        "0123456789"
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "abcdefghijklmnopqrstuvwxyz";
 
-// Authenticate User
+    std::random_device rd;
+    std::mt19937 generator(rd());
+    std::uniform_int_distribution<> dist(0, validChars.size() - 1);
+
+    std::string salt;
+    salt.reserve(length);
+
+    for (size_t i = 0; i < length; ++i) {
+        salt += validChars[dist(generator)];
+    }
+
+    return salt;
+}
+
+std::string MainFrame::HashPassword(const std::string& password, const std::string& salt) const {
+    // Combine salt and password
+    std::string combined = salt + password;
+
+    // Enhanced djb2 hash with multiple passes
+    unsigned long hash = 5381;
+
+    for (int i = 0; i < 5; ++i) { // Multiple iterations
+        for (char c : combined) {
+            hash = ((hash << 5) + hash) + static_cast<unsigned char>(c);
+        }
+        // Add salt characters between iterations
+        for (char s : salt) {
+            hash = ((hash << 3) + hash) + static_cast<unsigned char>(s);
+        }
+    }
+
+    // Convert to hexadecimal with fixed length
+    std::stringstream ss;
+    ss << std::hex << std::setw(16) << std::setfill('0') << hash;
+    return ss.str();
+}
+
+// Modified AuthenticateUser
 bool MainFrame::AuthenticateUser(const std::string& username, const std::string& password) {
     std::ifstream file("users.txt");
-    std::string line, storedUser, storedPass;
+    std::string line, storedUser, storedSalt, storedHash;
 
     while (getline(file, line)) {
         std::istringstream ss(line);
-        ss >> storedUser >> storedPass;
-        if (storedUser == username && storedPass == password) {
-            return true;
+        if (!(ss >> storedUser >> storedSalt >> storedHash)) continue;
+
+        if (storedUser == username) {
+            const std::string inputHash = HashPassword(password, storedSalt);
+            return storedHash == inputHash;
         }
     }
     return false;
 }
 
-// Register User
+// Modified RegisterUser
 bool MainFrame::RegisterUser(const std::string& username, const std::string& password) {
     std::ifstream file("users.txt");
-    std::string line, storedUser, storedPass;
+    std::string line, storedUser;
 
+    // Check if user exists
     while (getline(file, line)) {
         std::istringstream ss(line);
-        ss >> storedUser >> storedPass;
-        if (storedUser == username) {
+        if (ss >> storedUser && storedUser == username) {
             return false;
         }
     }
 
+    // Generate unique salt and hash
+    const std::string salt = GenerateSalt();
+    const std::string hashedPassword = HashPassword(password, salt);
+
+    // Store all three values
     std::ofstream outFile("users.txt", std::ios::app);
-    outFile << username << " " << password << "\n";
+    outFile << username << " " << salt << " " << hashedPassword << "\n";
     return true;
 }
 
@@ -399,6 +453,8 @@ void MainFrame::OnDeviceSelected(wxCommandEvent& event) {
     if (!device) return;
 
     // Update the checkbox to reflect the device's current power state
+
+    wxEventBlocker blocker(designer->getDeviceStatusCheckbox());
     designer->getDeviceStatusCheckbox()->SetValue(device->isOn());
 }
 
@@ -424,8 +480,9 @@ void MainFrame::OnToggleDevice(wxCommandEvent& event) {
     Device* device = selectedRoom->getDevice(selectedDeviceIndex);
     if (!device) return;
 
-    bool newState = designer->getDeviceStatusCheckbox()->GetValue();
+    bool newState = !device->isOn(); // Directly toggle instead of using checkbox
     device->setOn(newState);
+    designer->getDeviceStatusCheckbox()->SetValue(newState);
 
     UpdateDeviceList(selectedRoom);
     UpdateEnergyUsage();
@@ -472,7 +529,7 @@ void MainFrame::ShowHomeScreen() {
 void MainFrame::OnShowEnergyUsage(wxCommandEvent& event) {
     // Create report header
     wxString report = wxString::Format("Energy Usage Report\n\n");
-    report += wxString::Format("Current Rate: $%.2f/kWh\n\n", Device::costPerKWh);
+    report += wxString::Format("Current Rate: BDT%.2f/kWh\n\n", Device::costPerKWh);
 
     bool hasHistory = false;
 
@@ -508,7 +565,7 @@ void MainFrame::OnShowEnergyUsage(wxCommandEvent& event) {
                         "  + %s to %s\n"
                         "    | Duration: %.2f hours\n"
                         "    | Energy: %.2f kWh\n"
-                        "    + Cost: $%.2f\n",
+                        "    + Cost: BDT%.2f\n",
                         startTime.Format("%Y-%m-%d %H:%M"),
                         endTime.Format("%Y-%m-%d %H:%M"),
                         hours,
@@ -572,7 +629,7 @@ void MainFrame::UpdateEnergyUsage() {
 
     if (designer && designer->getEnergyUsageLabel()) {
         designer->getEnergyUsageLabel()->SetLabel(
-            wxString::Format("Energy Usage: %.2f kWh ($%.2f)",
+            wxString::Format("Energy Usage: %.2f kWh (BDT%.2f)",
                 total,
                 total * Device::costPerKWh)
         );
@@ -589,7 +646,10 @@ void MainFrame::UpdateDeviceList(Room* room) {
     wxListBox* deviceList = designer->getDeviceList();
     if (!deviceList) return;
 
-    // Freeze UI to avoid flickering (alternative to wxWindowUpdateLocker)
+    int selectedDeviceIndex = deviceList->GetSelection();
+
+    // Freeze UI 
+    wxEventBlocker blocker(deviceList);
     deviceList->Freeze();
 
     deviceList->Clear();
@@ -614,11 +674,9 @@ void MainFrame::UpdateDeviceList(Room* room) {
     }
 
     // Restore selection after update
-    if (selectedRoomIndex != wxNOT_FOUND) {
-        designer->getRoomList()->SetSelection(selectedRoomIndex);
-        designer->getRoomList()->Refresh();
+    if (selectedDeviceIndex != wxNOT_FOUND && selectedDeviceIndex < static_cast<int>(room->getDevices().size())) {
+        deviceList->SetSelection(selectedDeviceIndex);
     }
-
     // Unfreeze to allow UI refresh
     deviceList->Thaw();
 }
@@ -646,11 +704,11 @@ void MainFrame::UpdateLightsBasedOnTime() {
         shouldBeOn = (currentHour >= onHour || currentHour < offHour);
     }
 
-    // Update all lights in all rooms (background logic)
+    // Update all lights in all rooms
     for (auto& room : rooms) {
         for (auto& device : room->getDevices()) {
             wxString deviceName = device->getName();
-            wxString deviceNameLower = deviceName.Lower(); // FIX applied
+            wxString deviceNameLower = deviceName.Lower(); 
 
             if (deviceNameLower.Contains("light")) {
                 device->setOn(shouldBeOn);

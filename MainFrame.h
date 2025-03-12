@@ -3,6 +3,8 @@
 
 #include <wx/wx.h>
 #include <wx/timer.h>
+#include <random>
+#include <algorithm>
 #include <map>
 #include <ctime>
 #include <vector>
@@ -55,8 +57,7 @@ private:
     void OnShowEnergyUsage(wxCommandEvent& event);
     void OnTriggerFireAlarm(wxCommandEvent& event);
     void OnFireAlarmTimeout(wxTimerEvent& event);
-    void RefreshRoomListSelection();
-    void  SyncRoomSelection();
+  
 
     // Helper Methods
     bool AuthenticateUser(const std::string& username, const std::string& password);
@@ -71,11 +72,15 @@ private:
     void OnDeviceSettings(wxCommandEvent& event);
 
     // New energy calculation methods
-    double CalculateDeviceConsumption(const Device& device) const;
-    wxString GenerateEnergyRecommendations() const;
+   
     wxString FormatTimeSpan(const wxTimeSpan& span) const;
 
-    // Public getter for electricity rate
+
+    std::string HashPassword(const std::string& password) const;
+    std::string GenerateSalt(size_t length = 16) const;
+    std::string HashPassword(const std::string& password, const std::string& salt) const;
+
+
 public:
     double GetElectricityRate() const { return electricityCostPerKWh; }
 };

@@ -1,3 +1,5 @@
-﻿  MainFrame.cpp
-C:\Users\Lenovo\source\repos\FirstGUI\FirstGUI\MainFrame.cpp(496,27): warning C4566: character represented by universal-character-name '\u2514' cannot be represented in the current code page (1252)
+﻿  App.cpp
+  MainFrame.cpp
+C:\Users\Lenovo\source\repos\FirstGUI\FirstGUI\MainFrame.cpp(553,27): warning C4566: character represented by universal-character-name '\u2514' cannot be represented in the current code page (1252)
+  Generating Code...
   FirstGUI.vcxproj -> C:\Users\Lenovo\source\repos\FirstGUI\Debug\FirstGUI.exe

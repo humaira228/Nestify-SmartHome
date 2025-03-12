@@ -60,6 +60,13 @@ private:
     wxButton* removeDeviceButton;
     wxButton* showEnergyButton;
     wxButton* fireAlarmButton;
+
+    wxChoice* onTimeChoice;
+    wxChoice* offTimeChoice;
+    wxButton* applyTimeButton;
+    wxButton* applyRateButton;
+
+    wxTextCtrl* rateInput;
     // Add to class declaration
     
 

@@ -9,7 +9,9 @@ const std::unordered_map<std::string, double> DEVICE_POWER = {
     {"Thermostat", 0.5},
     {"Fan", 0.3},
     {"AC", 1.5},
-    {"Heater", 2.0}
+    {"Heater", 2.0},
+    { "Television", 3.0 },
+    {"Refrigerator", 2.5}
 };
 
 Designer::Designer(wxWindow* parent) {
@@ -84,7 +86,7 @@ void Designer::updateEnergyUsage() {
     std::stringstream ss;
     ss << std::fixed << std::setprecision(2)
         << "Energy Usage: " << total_energy << " kWh\n"
-        << "Estimated Cost: $" << (total_energy * electricity_rate) << "\n"
+        << "Estimated Cost: BDT" << (total_energy * electricity_rate) << "\n"
         << generateRecommendations();
 
     energyUsageLabel->SetLabel(ss.str());
@@ -99,14 +101,14 @@ std::string Designer::generateRecommendations() {
         for (const auto& dev : devices) {
             if (dev.power_kW > 1.0 && dev.is_on) {
                 if (++high_power_count > 2) {
-                    recommendations.emplace_back("⚠️ Multiple high-power devices running!");
+                    recommendations.emplace_back(" Multiple high-power devices running!");
                 }
             }
 
             if (dev.name == "Heater" && dev.is_on) {
                 time_t duration = time(nullptr) - dev.last_status_change;
                 if (duration > 3600) {
-                    recommendations.emplace_back("♨️ Heater running for over 1 hour");
+                    recommendations.emplace_back(" Heater running for over 1 hour");
                 }
             }
         }
@@ -120,7 +122,6 @@ std::string Designer::generateRecommendations() {
 }
 
 void Designer::setupLayout() {
-
     // Font settings
     wxFont font(12, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
     wxFont boldFont(12, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD);
@@ -128,24 +129,12 @@ void Designer::setupLayout() {
     // Vertical box sizer for layout
     wxBoxSizer* vbox = new wxBoxSizer(wxVERTICAL);
 
-    // Electricity Rate Input
-    wxBoxSizer* rateSizer = new wxBoxSizer(wxHORIZONTAL);
-    wxStaticText* rateLabel = new wxStaticText(panel, wxID_ANY, "Electricity Rate ($/kWh):");
-    rateLabel->SetFont(boldFont);
-    rateLabel->SetForegroundColour(wxColour(255, 255, 255));
-
-    wxTextCtrl* rateInput = new wxTextCtrl(panel, wxID_ANY, "0.15");
-    rateInput->SetFont(font);
-    rateInput->SetBackgroundColour(wxColour(50, 50, 50));
-    rateInput->SetForegroundColour(wxColour(255, 255, 255));
-
-    rateInput->Bind(wxEVT_TEXT, [this](wxCommandEvent& event) {
-        event.GetString().ToDouble(&electricity_rate);
-        });
-
-    rateSizer->Add(rateLabel, 0, wxRIGHT, 5);
-    rateSizer->Add(rateInput, 0, wxEXPAND);
-    vbox->Add(rateSizer, 0, wxEXPAND | wxALL, 10);
+    // Room Label (Ensures Visibility)
+    wxStaticText* roomLabel = new wxStaticText(panel, wxID_ANY, "Room:");
+    roomLabel->SetForegroundColour(wxColour(255, 255, 255));
+    roomLabel->SetBackgroundColour(wxColour(50, 50, 50)); // Ensure visibility
+    roomLabel->SetFont(boldFont);
+    vbox->Add(roomLabel, 0, wxLEFT | wxTOP, 10);
 
     // Room Input with Dropdown
     wxBoxSizer* roomSizer = new wxBoxSizer(wxHORIZONTAL);
@@ -154,23 +143,28 @@ void Designer::setupLayout() {
     roomChoice->Append("Bedroom");
     roomChoice->Append("Kitchen");
     roomChoice->Append("Bathroom");
+    roomChoice->Append("Balcony");
+    roomChoice->Append("Dining Room");
     roomChoice->SetSelection(0); // Default selection
     roomChoice->SetFont(font);
     roomChoice->SetBackgroundColour(wxColour(50, 50, 50));
     roomChoice->SetForegroundColour(wxColour(255, 255, 255));
+    roomChoice->SetMinSize(wxSize(150, -1)); // Prevent squashing
 
     addRoomButton = new wxButton(panel, wxID_ANY, "Add Room");
-    addRoomButton->SetBackgroundColour(wxColour(0, 204, 204));  // More vibrant color
+    addRoomButton->SetBackgroundColour(wxColour(0, 204, 204));
     addRoomButton->SetFont(boldFont);
 
-    wxStaticText* roomLabel = new wxStaticText(panel, wxID_ANY, "Room:");
-    roomLabel->SetForegroundColour(wxColour(255, 255, 255));
-    roomLabel->SetFont(boldFont);
-
-    roomSizer->Add(roomLabel, 0, wxRIGHT, 5);
     roomSizer->Add(roomChoice, 1, wxEXPAND | wxRIGHT, 5);
     roomSizer->Add(addRoomButton, 0);
     vbox->Add(roomSizer, 0, wxEXPAND | wxALL, 10);
+
+    // Device Label (Ensures Visibility)
+    wxStaticText* deviceLabel = new wxStaticText(panel, wxID_ANY, "Device:");
+    deviceLabel->SetForegroundColour(wxColour(255, 255, 255));
+    deviceLabel->SetBackgroundColour(wxColour(50, 50, 50));
+    deviceLabel->SetFont(boldFont);
+    vbox->Add(deviceLabel, 0, wxLEFT | wxTOP, 10);
 
     // Device Input with Dropdown
     wxBoxSizer* deviceSizer = new wxBoxSizer(wxHORIZONTAL);
@@ -181,13 +175,16 @@ void Designer::setupLayout() {
     deviceChoice->Append("Fan");
     deviceChoice->Append("AC");
     deviceChoice->Append("Heater");
+    deviceChoice->Append("Television");
+    deviceChoice->Append("Refrigerator");
     deviceChoice->SetSelection(0);
     deviceChoice->SetFont(font);
     deviceChoice->SetBackgroundColour(wxColour(50, 50, 50));
     deviceChoice->SetForegroundColour(wxColour(255, 255, 255));
+    deviceChoice->SetMinSize(wxSize(150, -1)); // Prevent squashing
 
     addDeviceButton = new wxButton(panel, wxID_ANY, "Add Device");
-    addDeviceButton->SetBackgroundColour(wxColour(255, 20, 147));  // Sleek button color
+    addDeviceButton->SetBackgroundColour(wxColour(255, 20, 147));
     addDeviceButton->SetFont(boldFont);
 
     deviceStatusCheckbox = new wxCheckBox(panel, wxID_ANY, "On/Off");
@@ -195,11 +192,6 @@ void Designer::setupLayout() {
     deviceStatusCheckbox->SetBackgroundColour(wxColour(50, 50, 50));
     deviceStatusCheckbox->SetForegroundColour(wxColour(255, 255, 255));
 
-    wxStaticText* deviceLabel = new wxStaticText(panel, wxID_ANY, "Device:");
-    deviceLabel->SetForegroundColour(wxColour(255, 255, 255));
-    deviceLabel->SetFont(boldFont);
-
-    deviceSizer->Add(deviceLabel, 0, wxRIGHT, 5);
     deviceSizer->Add(deviceChoice, 1, wxEXPAND | wxRIGHT, 5);
     deviceSizer->Add(addDeviceButton, 0);
     deviceSizer->Add(deviceStatusCheckbox, 0, wxLEFT, 10);
@@ -221,7 +213,7 @@ void Designer::setupLayout() {
     listSizer->Add(deviceList, 1, wxEXPAND);
     vbox->Add(listSizer, 1, wxEXPAND | wxALL, 10);
 
-    // Energy Usage Section with Dynamic Text
+    // Energy Usage Section
     wxBoxSizer* energySizer = new wxBoxSizer(wxHORIZONTAL);
     energyUsageLabel = new wxStaticText(panel, wxID_ANY, "Energy Usage: 0.00 kWh");
     energyUsageLabel->SetForegroundColour(wxColour(0, 255, 255));
@@ -239,7 +231,7 @@ void Designer::setupLayout() {
     energySizer->Add(showEnergyButton, 0);
     vbox->Add(energySizer, 0, wxEXPAND | wxALL, 10);
 
-    // Action Buttons with Better Styling
+    // Action Buttons
     wxBoxSizer* actionSizer = new wxBoxSizer(wxHORIZONTAL);
     removeDeviceButton = new wxButton(panel, wxID_ANY, "Remove Device");
     removeDeviceButton->SetBackgroundColour(wxColour(255, 69, 0));
@@ -258,5 +250,9 @@ void Designer::setupLayout() {
     actionSizer->Add(fireAlarmButton, 1, wxEXPAND);
     vbox->Add(actionSizer, 0, wxEXPAND | wxALL, 10);
 
+    // Set sizer and force refresh
     panel->SetSizer(vbox);
+    panel->Layout();
+    panel->Refresh();
+    panel->Update();
 }
