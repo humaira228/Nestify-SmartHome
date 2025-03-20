@@ -14,7 +14,7 @@ public:
 
     wxPanel* getPanel() const;
 
-    // Getters for UI components
+ 
     wxListBox* getRoomList() const;
     wxListBox* getDeviceList() const;
     wxCheckBox* getDeviceStatusCheckbox() const;
@@ -46,7 +46,7 @@ private:
     void updateEnergyUsage();
     std::string generateRecommendations();
 
-    // UI Components
+
     wxPanel* panel;
     wxChoice* roomChoice;
     
@@ -67,10 +67,8 @@ private:
     wxButton* applyRateButton;
 
     wxTextCtrl* rateInput;
-    // Add to class declaration
-    
-
-    // Data structures
+   
+  
     std::unordered_map<std::string, std::vector<Device>> rooms;
     double electricity_rate = 0.15;
 };

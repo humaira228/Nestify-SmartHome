@@ -2,7 +2,7 @@
 #include <cmath>
 #include <wx/datetime.h>
 
-double Device::costPerKWh = 0.12;  // Default electricity cost
+double Device::costPerKWh = 0.9;  // Default
 
 Device::Device(const std::string& name, double consumption)
     : name(name), consumption(consumption), on(false),
@@ -10,7 +10,7 @@ Device::Device(const std::string& name, double consumption)
 }
 
 bool Device::isOn() const {
-    return on; // 'on' is a boolean member variable
+    return on;
 }
 void Device::setOn(bool state) {
     if (state) turnOn();

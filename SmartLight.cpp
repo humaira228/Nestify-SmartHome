@@ -16,10 +16,8 @@ void SmartLight::turnOn() {
 void SmartLight::turnOff() {
     if (on) {
         const time_t endTime = std::time(nullptr);
-        const double duration = std::difftime(endTime, startTime) / 3600.0; // Convert seconds to hours
+        const double duration = std::difftime(endTime, startTime) / 3600.0; 
         const double energyUsed = consumption * duration;
-
-        // Record usage history
         usageHistory.push_back({ startTime, endTime, energyUsed });
         totalEnergyConsumed += energyUsed;
 
@@ -27,6 +25,7 @@ void SmartLight::turnOff() {
         std::cout << name << " (Smart Light) is turned OFF.\n";
     }
 }
+
 
 void SmartLight::setBrightness(int level) {
     if (level < 0) level = 0;

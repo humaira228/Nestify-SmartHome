@@ -1,6 +1,5 @@
 #include "user.h"
 
-// Dummy storage for users (replace with database or file storage)
 #include <unordered_map>
 
 static std::unordered_map<std::string, std::string> userDatabase;
@@ -11,7 +10,7 @@ bool User::login(const std::string& username, const std::string& password) {
 
 bool User::registerUser(const std::string& username, const std::string& password) {
     if (userDatabase.find(username) != userDatabase.end()) {
-        return false; // User already exists
+        return false; 
     }
     userDatabase[username] = password;
     return true;

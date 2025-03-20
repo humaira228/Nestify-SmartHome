@@ -24,7 +24,7 @@ double EnergyMonitor::calculateTotalCost() const {
 std::vector<std::string> EnergyMonitor::generateRecommendations() const {
     std::vector<std::string> recommendations;
 
-    // Check for long-running devices
+    // Chk for long  running devices
     for (const auto& device : devices) {
         if (device.isOn()) {
             double hours = device.getCurrentSessionDuration();

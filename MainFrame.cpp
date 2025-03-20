@@ -29,11 +29,11 @@ MainFrame::MainFrame(const wxString& title)
         {"AC", 1.5},
         {"Fan", 0.3},
         {"Heater", 2.0},
-        { "Television", 3.0 },
+        { "Television", 6.0 },
         {"Refrigerator", 2.5}
     };
 
-    // Initialize fire alarm timer
+
     fireAlarmTimer = new wxTimer(this);
     Bind(wxEVT_TIMER, &MainFrame::OnFireAlarmTimeout, this, fireAlarmTimer->GetId());
 
@@ -50,14 +50,13 @@ MainFrame::MainFrame(const wxString& title)
     onTimeChoice->SetSelection(17);  // 18:00
     offTimeChoice->SetSelection(5);   // 06:00
 
-    // Electricity rate controls
     rateInput = new wxTextCtrl(this, wxID_ANY, "0.90");
     wxButton* applyRateBtn = new wxButton(this, wxID_ANY, "Apply Rate");
 
-    // Main layout setup
+ 
     wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
 
-    // Time controls layout
+
     wxBoxSizer* timeSizer = new wxBoxSizer(wxHORIZONTAL);
     timeSizer->Add(new wxStaticText(this, wxID_ANY, "Lights ON:"), 0, wxALL, 5);
     timeSizer->Add(onTimeChoice, 0, wxALL, 5);
@@ -65,7 +64,6 @@ MainFrame::MainFrame(const wxString& title)
     timeSizer->Add(offTimeChoice, 0, wxALL, 5);
     timeSizer->Add(applyTimeButton, 0, wxALL, 5);
 
-    // Rate controls layout
     wxBoxSizer* rateSizer = new wxBoxSizer(wxHORIZONTAL);
     rateSizer->Add(new wxStaticText(this, wxID_ANY, "Electricity Rate (BDT/kWh):"), 0, wxALL, 5);
     rateSizer->Add(rateInput, 0, wxALL, 5);
@@ -74,33 +72,32 @@ MainFrame::MainFrame(const wxString& title)
     mainSizer->Add(rateSizer, 0, wxALIGN_CENTER | wxALL, 10);
     mainSizer->Add(timeSizer, 0, wxALIGN_CENTER | wxALL, 10);
 
-    // Login panel setup (simplified)
+ 
     loginPanel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(400, 250));
     loginPanel->SetBackgroundColour(wxColour(0, 150, 60));
     loginPanel->SetWindowStyle(wxBORDER_SIMPLE);
 
     wxBoxSizer* loginSizer = new wxBoxSizer(wxVERTICAL);
 
-    // Header
+  
     wxStaticText* header = new wxStaticText(loginPanel, wxID_ANY, "Smart Home Login");
     header->SetFont(wxFont(18, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD));
     header->SetForegroundColour(wxColour(50, 50, 50));
     loginSizer->Add(header, 0, wxALIGN_CENTER_HORIZONTAL | wxTOP | wxBOTTOM, 15);
 
-    // Username input
+
     usernameInput = new wxTextCtrl(loginPanel, wxID_ANY, "", wxDefaultPosition, wxSize(250, 32), wxBORDER_SIMPLE);
     usernameInput->SetHint("Enter your username");
     usernameInput->SetBackgroundColour(wxColour(248, 248, 248));
     loginSizer->Add(usernameInput, 0, wxALIGN_CENTER_HORIZONTAL | wxALL, 10);
 
-    // Password input
+
     passwordInput = new wxTextCtrl(loginPanel, wxID_ANY, "", wxDefaultPosition, wxSize(250, 32), wxTE_PASSWORD | wxBORDER_SIMPLE);
     passwordInput->SetHint("Enter your password");
     passwordInput->SetBackgroundColour(wxColour(248, 248, 248));
     loginSizer->Add(passwordInput, 0, wxALIGN_CENTER_HORIZONTAL | wxALL, 10);
 
 
-    // Buttons
     loginButton = new wxButton(loginPanel, wxID_ANY, "SIGN IN", wxDefaultPosition, wxSize(200, 40));
     loginButton->SetBackgroundColour(wxColour(0, 140, 186));
     loginButton->SetForegroundColour(wxColour(255, 255, 255));
@@ -118,12 +115,11 @@ MainFrame::MainFrame(const wxString& title)
 
     loginPanel->SetSizer(loginSizer);
 
-    // Add login panel to main sizer
+
     mainSizer->Add(loginPanel, 1, wxALIGN_CENTER | wxALL, 20);
 
 
 
-    // Add designer panel (hidden initially)
     if (designer && designer->getPanel()) {
         mainSizer->Add(designer->getPanel(), 1, wxEXPAND | wxALL, 20);
         designer->getPanel()->Hide();
@@ -131,17 +127,17 @@ MainFrame::MainFrame(const wxString& title)
 
     this->SetSizer(mainSizer);
 
-    // Event bindings
     applyTimeButton->Bind(wxEVT_BUTTON, &MainFrame::OnApplyTime, this);
     applyRateBtn->Bind(wxEVT_BUTTON, &MainFrame::OnApplyRate, this);
     loginButton->Bind(wxEVT_BUTTON, &MainFrame::OnLogin, this);
     registerButton->Bind(wxEVT_BUTTON, &MainFrame::OnRegister, this);
 
-    // Initialize timers
+
     timeSwitchTimer = new wxTimer(this);
     Bind(wxEVT_TIMER, &MainFrame::OnTimeSwitch, this, timeSwitchTimer->GetId());
     timeSwitchTimer->Start(5000);
-    // Add after other button bindings
+
+
     if (designer && designer->getDeviceSettingsButton()) {
         designer->getDeviceSettingsButton()->Bind(
             wxEVT_BUTTON,
@@ -162,12 +158,9 @@ MainFrame::~MainFrame() {
     delete fireAlarmTimer;
     delete timeSwitchTimer;
 }
-// Rest of the implementation remains the same as in your original code
-// (OnLogin, OnRegister, ShowHomeScreen, AuthenticateUser, etc.)
-// Rest of the implementation remains the same as in your original code
-// (OnLogin, OnRegister, ShowHomeScreen, AuthenticateUser, etc.)
 
-// Login Handling
+
+
 void MainFrame::OnLogin(wxCommandEvent& event) {
     wxString username = usernameInput->GetValue();
     wxString password = passwordInput->GetValue();
@@ -186,7 +179,8 @@ void MainFrame::OnLogin(wxCommandEvent& event) {
     }
 }
 
-// Registration Handling
+
+
 void MainFrame::OnRegister(wxCommandEvent& event) {
     wxString username = usernameInput->GetValue();
     wxString password = passwordInput->GetValue();
@@ -199,12 +193,11 @@ void MainFrame::OnRegister(wxCommandEvent& event) {
     if (RegisterUser(username.ToStdString(), password.ToStdString())) {
         wxMessageBox("User registered successfully!", "Success", wxOK | wxICON_INFORMATION);
     }
-    else {
+    else { 
         wxMessageBox("Username already exists!", "Error", wxOK | wxICON_ERROR);
     }
 }
 
-// Add these implementations in MainFrame.cpp
 std::string MainFrame::GenerateSalt(size_t length) const {
     const std::string validChars =
         "0123456789"
@@ -226,29 +219,29 @@ std::string MainFrame::GenerateSalt(size_t length) const {
 }
 
 std::string MainFrame::HashPassword(const std::string& password, const std::string& salt) const {
-    // Combine salt and password
+   
     std::string combined = salt + password;
 
-    // Enhanced djb2 hash with multiple passes
+
     unsigned long hash = 5381;
 
-    for (int i = 0; i < 5; ++i) { // Multiple iterations
+    for (int i = 0; i < 100; ++i) { 
         for (char c : combined) {
             hash = ((hash << 5) + hash) + static_cast<unsigned char>(c);
         }
-        // Add salt characters between iterations
+    
         for (char s : salt) {
             hash = ((hash << 3) + hash) + static_cast<unsigned char>(s);
         }
     }
 
-    // Convert to hexadecimal with fixed length
+    
     std::stringstream ss;
     ss << std::hex << std::setw(16) << std::setfill('0') << hash;
     return ss.str();
 }
 
-// Modified AuthenticateUser
+
 bool MainFrame::AuthenticateUser(const std::string& username, const std::string& password) {
     std::ifstream file("users.txt");
     std::string line, storedUser, storedSalt, storedHash;
@@ -265,30 +258,31 @@ bool MainFrame::AuthenticateUser(const std::string& username, const std::string&
     return false;
 }
 
-// Modified RegisterUser
+
 bool MainFrame::RegisterUser(const std::string& username, const std::string& password) {
     std::ifstream file("users.txt");
     std::string line, storedUser;
 
-    // Check if user exists
-    while (getline(file, line)) {
+
+    while (getline(file, line)) {//if user exists
         std::istringstream ss(line);
         if (ss >> storedUser && storedUser == username) {
             return false;
         }
     }
 
-    // Generate unique salt and hash
+  
     const std::string salt = GenerateSalt();
     const std::string hashedPassword = HashPassword(password, salt);
 
-    // Store all three values
+    // Storing all 3 val
     std::ofstream outFile("users.txt", std::ios::app);
     outFile << username << " " << salt << " " << hashedPassword << "\n";
     return true;
 }
 
-// Event: Add Room
+
+
 void MainFrame::OnAddRoom(wxCommandEvent& event) {
     if (!designer || !designer->getRoomChoice()) return;
 
@@ -298,31 +292,31 @@ void MainFrame::OnAddRoom(wxCommandEvent& event) {
         return;
     }
 
-    // Save current selection
-    int prevSelection = designer->getRoomList()->GetSelection();
 
-    // Block events to prevent automatic selection changes
+    int prevSelection = designer->getRoomList()->GetSelection();//cur selection save
+
+   
     wxEventBlocker blocker(designer->getRoomList());
 
-    // Add new room
+
     rooms.push_back(std::make_unique<Room>(roomName.ToStdString()));
     designer->getRoomList()->Append(roomName);
 
-    // Restore previous selection
-    if (prevSelection != wxNOT_FOUND) {
+  
+    if (prevSelection != wxNOT_FOUND) {//prev selection restore
         designer->getRoomList()->SetSelection(prevSelection);
         selectedRoomIndex = prevSelection;
     }
 
-    // Update device list if a room was previously selected
-    if (prevSelection != wxNOT_FOUND && prevSelection < static_cast<int>(rooms.size())) {
+   
+    if (prevSelection != wxNOT_FOUND && prevSelection < static_cast<int>(rooms.size())) { // Update device list if a room was previously selected
         UpdateDeviceList(rooms[prevSelection].get());
     } else {
         designer->getDeviceList()->Clear();
     }
 }
 
-// Event: Add Device
+
 void MainFrame::OnApplyRate(wxCommandEvent& event) {
     double rate;
     if (rateInput->GetValue().ToDouble(&rate)) {
@@ -338,7 +332,7 @@ void MainFrame::OnApplyRate(wxCommandEvent& event) {
 void MainFrame::OnAddDevice(wxCommandEvent& event) {
     if (!designer || selectedRoomIndex == wxNOT_FOUND) return;
 
-    // Get selected room safely
+
     if (selectedRoomIndex >= static_cast<int>(rooms.size())) {
         wxMessageBox("Invalid room selection!", "Error", wxOK | wxICON_ERROR);
         return;
@@ -348,20 +342,20 @@ void MainFrame::OnAddDevice(wxCommandEvent& event) {
     wxString deviceName = designer->getDeviceChoice()->GetStringSelection();
     if (deviceName.empty()) return;
 
-    // Create appropriate device type
+    
     std::unique_ptr<Device> newDevice;
     if (deviceName == "Smart Light") {
         newDevice = std::make_unique<SmartLight>(
             deviceName.ToStdString(),
             devicePowerMap[deviceName.ToStdString()],
-            50  // Default brightness
+            50  // Default 
         );
     }
     else if (deviceName == "Thermostat") {
         newDevice = std::make_unique<Thermostat>(
             deviceName.ToStdString(),
             devicePowerMap[deviceName.ToStdString()],
-            22.0  // Default temperature
+            22.0  // Default 
         );
     }
     else {
@@ -376,7 +370,7 @@ void MainFrame::OnAddDevice(wxCommandEvent& event) {
     UpdateEnergyUsage();
 }
 
-// Event: Remove Device
+
 void MainFrame::OnRemoveDevice(wxCommandEvent& event) {
     if (!designer) return;
 
@@ -403,7 +397,7 @@ void MainFrame::OnRemoveDevice(wxCommandEvent& event) {
     UpdateEnergyUsage();
 }
 
-// Event: Room Selection
+
 void MainFrame::OnRoomSelected(wxCommandEvent& event) {
     if (!designer || !designer->getRoomList()) return;
 
@@ -423,8 +417,8 @@ void MainFrame::OnRoomSelected(wxCommandEvent& event) {
         designer->getDeviceStatusCheckbox()->SetValue(false);
     }
 
-    // Preserve focus and prevent accidental selection changes
-    designer->getRoomList()->SetFocus();
+    
+    designer->getRoomList()->SetFocus();// Preserve focus and prevent change abrupty
     designer->getRoomList()->SetSelection(selectedRoomIndex);
 
     event.Skip(false); // Prevent event propagation
@@ -502,7 +496,6 @@ void MainFrame::ShowHomeScreen() {
     Layout();
     UpdateLightsBasedOnTime();
 
-    // Ensure UI components exist before binding
     if (auto btn = designer->getAddRoomButton()) {
         btn->Bind(wxEVT_BUTTON, &MainFrame::OnAddRoom, this);
     }
@@ -525,21 +518,21 @@ void MainFrame::ShowHomeScreen() {
     Layout();
 }
 
-// Event: Show Energy Usage
+
 void MainFrame::OnShowEnergyUsage(wxCommandEvent& event) {
-    // Create report header
+    // report header
     wxString report = wxString::Format("Energy Usage Report\n\n");
     report += wxString::Format("Current Rate: BDT%.2f/kWh\n\n", Device::costPerKWh);
 
     bool hasHistory = false;
 
-    // Process each room
+    
     for (const auto& room : rooms) {
         if (!room || room->getDevices().empty()) continue;
 
         report += wxString::Format("=== %s ===\n", room->getName());
 
-        // Process each device
+     
         for (const auto& device : room->getDevices()) {
             if (!device) continue;
 
@@ -558,7 +551,7 @@ void MainFrame::OnShowEnergyUsage(wxCommandEvent& event) {
                     wxDateTime startTime(session.start);
                     wxDateTime endTime(session.end);
 
-                    // Calculate duration in hours
+                    
                     double hours = std::difftime(session.end, session.start) / 3600.0;
 
                     report += wxString::Format(
@@ -578,21 +571,19 @@ void MainFrame::OnShowEnergyUsage(wxCommandEvent& event) {
         }
         report += "\n";
     }
-
-    // Handle no-history case
     if (!hasHistory) {
         report += "\nNo energy usage data available.\n";
         report += "Tip: Devices must be turned OFF to record usage history.";
     }
 
-    // Create dialog
+ 
     wxDialog reportDialog(this, wxID_ANY, "Energy Usage Report",
         wxDefaultPosition, wxSize(600, 400));
     wxTextCtrl* reportText = new wxTextCtrl(&reportDialog, wxID_ANY, report,
         wxDefaultPosition, wxDefaultSize,
         wxTE_MULTILINE | wxTE_READONLY | wxTE_RICH);
 
-    // Configure font
+   
     wxFont font(10, wxFONTFAMILY_TELETYPE, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
     reportText->SetFont(font);
 
@@ -604,7 +595,7 @@ void MainFrame::OnShowEnergyUsage(wxCommandEvent& event) {
     reportDialog.ShowModal();
 }
 
-// Event: Fire Alarm Trigger
+
 void MainFrame::OnTriggerFireAlarm(wxCommandEvent& event) {
     wxMessageBox("Fire alarm triggered! You have 5 seconds to respond.",
         "Fire Alarm", wxOK | wxICON_WARNING);
@@ -615,7 +606,7 @@ void MainFrame::OnTriggerFireAlarm(wxCommandEvent& event) {
     }
 }
 
-// Event: Fire Alarm Timeout
+
 void MainFrame::OnFireAlarmTimeout(wxTimerEvent& event) {
     wxMessageBox("FIRE ALARM! Evacuate immediately!",
         "Critical Alert", wxOK | wxICON_ERROR);
@@ -639,7 +630,8 @@ void MainFrame::UpdateEnergyUsage() {
 wxString MainFrame::FormatTimeSpan(const wxTimeSpan& span) const {
     return span.Format("%H:%M:%S");
 }
-// Helper: Update Device List
+
+
 void MainFrame::UpdateDeviceList(Room* room) {
     if (!designer || !room) return;
 
@@ -673,11 +665,11 @@ void MainFrame::UpdateDeviceList(Room* room) {
         deviceList->Append(device->getName() + status);
     }
 
-    // Restore selection after update
+ 
     if (selectedDeviceIndex != wxNOT_FOUND && selectedDeviceIndex < static_cast<int>(room->getDevices().size())) {
         deviceList->SetSelection(selectedDeviceIndex);
     }
-    // Unfreeze to allow UI refresh
+ 
     deviceList->Thaw();
 }
 
@@ -696,7 +688,7 @@ void MainFrame::UpdateLightsBasedOnTime() {
     int currentHour = wxDateTime::Now().GetHour();
     bool shouldBeOn;
 
-    // Handle overnight ranges
+    // overnight range
     if (onHour < offHour) {
         shouldBeOn = (currentHour >= onHour && currentHour < offHour);
     }
@@ -704,7 +696,7 @@ void MainFrame::UpdateLightsBasedOnTime() {
         shouldBeOn = (currentHour >= onHour || currentHour < offHour);
     }
 
-    // Update all lights in all rooms
+ 
     for (auto& room : rooms) {
         for (auto& device : room->getDevices()) {
             wxString deviceName = device->getName();
@@ -716,11 +708,11 @@ void MainFrame::UpdateLightsBasedOnTime() {
         }
     }
 
-    // Only update UI for the currently selected room
+
     if (selectedRoomIndex != wxNOT_FOUND && selectedRoomIndex < static_cast<int>(rooms.size())) {
         UpdateDeviceList(rooms[selectedRoomIndex].get());
 
-        // Preserve room selection
+     
         if (designer && designer->getRoomList()) {
             designer->getRoomList()->SetSelection(selectedRoomIndex);
             designer->getRoomList()->Refresh();
@@ -775,3 +767,10 @@ void MainFrame::OnDeviceSettings(wxCommandEvent& event) {
         wxMessageBox("No settings available for this device type", "Info", wxOK | wxICON_INFORMATION);
     }
 }
+
+
+
+
+
+
+

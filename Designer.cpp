@@ -5,12 +5,12 @@
 
 const std::unordered_map<std::string, double> DEVICE_POWER = {
     {"Light", 0.1},
-    {"Smart Light", 0.15},  // Added
+    {"Smart Light", 0.15},  
     {"Thermostat", 0.5},
     {"Fan", 0.3},
     {"AC", 1.5},
     {"Heater", 2.0},
-    { "Television", 3.0 },
+    { "Television", 6.0 },
     {"Refrigerator", 2.5}
 };
 

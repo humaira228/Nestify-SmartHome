@@ -21,6 +21,9 @@ public:
     MainFrame(const wxString& title);
     ~MainFrame();
 
+
+    double GetElectricityRate() const { return electricityCostPerKWh; }
+
 private:
     Designer* designer;
     std::vector<std::unique_ptr<Room>> rooms;
@@ -34,18 +37,18 @@ private:
     int offHour;
     int selectedRoomIndex;
 
-    // Login UI
+    
     wxPanel* loginPanel;
     wxTextCtrl* usernameInput;
     wxTextCtrl* passwordInput;
     wxButton* loginButton;
     wxButton* registerButton;
     wxTextCtrl* rateInput;
-    // Energy-related members
+  
     double electricityCostPerKWh;
     std::unordered_map<std::string, double> devicePowerMap;
 
-    // Event Handlers
+   
     void OnLogin(wxCommandEvent& event);
     void OnRegister(wxCommandEvent& event);
     void OnAddRoom(wxCommandEvent& event);
@@ -59,7 +62,7 @@ private:
     void OnFireAlarmTimeout(wxTimerEvent& event);
   
 
-    // Helper Methods
+
     bool AuthenticateUser(const std::string& username, const std::string& password);
     bool RegisterUser(const std::string& username, const std::string& password);
     void ShowHomeScreen();
@@ -71,18 +74,14 @@ private:
     void OnApplyRate(wxCommandEvent& event);
     void OnDeviceSettings(wxCommandEvent& event);
 
-    // New energy calculation methods
    
     wxString FormatTimeSpan(const wxTimeSpan& span) const;
 
 
-    std::string HashPassword(const std::string& password) const;
-    std::string GenerateSalt(size_t length = 16) const;
-    std::string HashPassword(const std::string& password, const std::string& salt) const;
+    std::string GenerateSalt(size_t length = 16) const ;
+    std::string HashPassword(const std::string& password, const std::string& salt) const; 
 
 
-public:
-    double GetElectricityRate() const { return electricityCostPerKWh; }
 };
 
 #endif // MAINFRAME_H

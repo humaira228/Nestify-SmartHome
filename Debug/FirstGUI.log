@@ -1,5 +1,13 @@
 ﻿  App.cpp
+  Device.cpp
+  EnergyMonitor.cpp
+  EnergyUsage.cpp
+  FireAlarm.cpp
   MainFrame.cpp
-C:\Users\Lenovo\source\repos\FirstGUI\FirstGUI\MainFrame.cpp(553,27): warning C4566: character represented by universal-character-name '\u2514' cannot be represented in the current code page (1252)
+C:\Users\Lenovo\source\repos\FirstGUI\FirstGUI\MainFrame.cpp(546,27): warning C4566: character represented by universal-character-name '\u2514' cannot be represented in the current code page (1252)
+  Room.cpp
+  SmartLight.cpp
+  ThermoStat.cpp
+  main.cpp
   Generating Code...
   FirstGUI.vcxproj -> C:\Users\Lenovo\source\repos\FirstGUI\Debug\FirstGUI.exe

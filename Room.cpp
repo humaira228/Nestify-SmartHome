@@ -1,38 +1,38 @@
 #include "Room.h"
 
-// Constructor
+
 Room::Room(const std::string& name)
     : name(name) {
 }
 
-// Add a device to the room
+
 void Room::addDevice(std::unique_ptr<Device> device) {
     devices.push_back(std::move(device)); // Transfer ownership
 }
 
-// Remove a device from the room by index
+
 bool Room::removeDevice(size_t index) {
     if (index >= devices.size()) {
         return false;
     }
-    devices.erase(devices.begin() + index); // unique_ptr auto-deletes the device
+    devices.erase(devices.begin() + index); // uniq ptr auto del device
     return true;
 }
 
-// Get a device by index
+//get device by idx
 Device* Room::getDevice(int index) {
     if (index >= 0 && index < static_cast<int>(devices.size())) {
-        return devices[index].get(); // Return raw pointer from unique_ptr
+        return devices[index].get(); // return raw ptr from uniq ptr
     }
     return nullptr;
 }
 
-// Get all devices in the room
+// Get all
 const std::vector<std::unique_ptr<Device>>& Room::getDevices() const {
     return devices;
 }
 
-// Calculate total energy usage for the room
+
 double Room::calculateEnergyUsage() const {
     double total = 0.0;
     for (const auto& device : devices) {
@@ -43,7 +43,7 @@ double Room::calculateEnergyUsage() const {
     return total;
 }
 
-// Get the name of the room
+//get room name
 std::string Room::getName() const {
     return name;
 }

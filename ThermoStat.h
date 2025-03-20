@@ -7,11 +7,11 @@ class Thermostat : public Device {
 public:
     Thermostat(const std::string& name, double consumption, double temperature);
 
-    // Override power methods
+    
     void turnOn() override;
     void turnOff() override;
 
-    // Temperature control
+ 
     void setTemperature(double temp);
     double getTemperature() const;
 
